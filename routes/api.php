@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Api\AppointmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,6 +25,11 @@ Route::group([
     Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::get('/user-profile', [AuthController::class, 'userProfile']);
     Route::get('/user-profiles', [AuthController::class, 'userProfiles']);
+});
+
+Route::middleware('auth:api')->group(function() {
+    Route::get('/appointment/byPO/{id}', [AppointmentController::class, 'showByPartsOrOrg']);
+    Route::apiResource('/appointment', AppointmentController::class);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

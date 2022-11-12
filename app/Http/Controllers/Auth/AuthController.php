@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -34,12 +34,6 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         return $this->createNewToken($token);
-
-        // $token = auth('api')->attempt($validator->validated());
-        // if($token === false){
-        //     return response()->json(['error' => 'Unauthorized'], 401);
-        // }
-        // return $this->createNewToken($token);
     }
     /**
      * Register a User.
