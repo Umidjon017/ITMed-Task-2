@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('appointments', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('identifier_use')->nullable();
-            $table->string('identifier_type')->nullable();
+            $table->enum('identifier_use', ['usual', 'official', 'temp', 'secondary', 'old'])->nullable();
+            $table->enum('identifier_type', ['DL', 'PPN', 'TPPN', 'NNUZB', 'REO', 'TAX', 'CZ', 'BCT', 'RI'])->nullable();
             $table->string('identifier_system')->nullable();
             $table->string('identifier_value')->nullable();
             $table->string('identifier_start')->nullable();

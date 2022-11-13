@@ -1,0 +1,773 @@
+openapi: 3.0.2
+info:
+  title: ITMed-Task
+  version: '1.0'
+servers:
+  - url: http://127.0.0.1:8000/api/
+tags:
+- name: "Auth"
+- name: "Administration Module"
+  description: "API Authentication related calls"
+paths:
+  /auth/register:
+    post:
+      description: |-
+        Email va password orqali ro'yxatdan o'ting
+        Зарегистрируйтесь по электронной почте и паролю
+      summary: Register by email and password
+      tags:
+        - Auth
+      requestBody:
+        description: |-
+          Yaratilgan resurs haqida ma'lumot
+          Информация о создаваемом ресурсе
+          Information about the created resource
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Register:
+                    allOf:
+                      - type: object
+                      - $ref: '#/components/schemas/Register'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '502':
+          $ref: '#/components/responses/502'
+  /auth/login:
+    post:
+      description: |-
+        Email va password orqali tizimga kiring
+        Войти по электронной почте и паролю
+      summary: Sign in by email and password
+      tags:
+        - Auth
+      requestBody:
+        description: |-
+          Tizimga kirgan foydalanuvchi haqida ma'lumot
+          Информация о вошедшем в систему пользователе
+          Information about the sign in user
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+      responses:
+        '201':
+          description: User successfully signed in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Login:
+                    allOf:
+                      - type: object
+                      - $ref: '#/components/schemas/Login'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '502':
+          $ref: '#/components/responses/502'
+  /auth/refresh:
+    post:
+      description: |-
+        Foydalanuvchining tokenini yangilash
+        Обновить токен пользователя
+      summary: Refresh the user's token
+      tags:
+        - Auth
+      responses:
+        '201':
+          description: User successfully signed in
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '502':
+          $ref: '#/components/responses/502'
+  /auth/logout:
+    post:
+      description: |-
+        Tizimdan chiqish
+        Выйти
+      summary: Log out
+      tags:
+        - Auth
+      responses:
+        '201':
+          description: User successfully logged out
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '502':
+          $ref: '#/components/responses/502'
+  /appointment:
+    post:
+      description: |-
+        Muayyan sana/vaqt uchun bemor va amaliyotchi o'rtasida sog'liqni saqlash tadbirini yaratish
+         Создание бронирования медицинского мероприятия между пациентом и практикующим врачом на определенную дату / время
+      summary: Creating a booking of a healthcare event among patient and, practitioner for a specific date/time
+      tags:
+        - Administration Module
+      requestBody:
+        description: |-
+          Yaratilgan resurs haqida ma'lumot
+           Информация о создаваемом ресурсе
+           Information about the created resource
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Appointment'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Appointment:
+                    allOf:
+                      - type: object
+                        required:
+                          - id
+                        properties:
+                          id:
+                            description: |-
+                              Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
+                               Основной логический идентификатор в экосистеме здравоохранения
+                               Main logical identifier in the healthcare ecosystem
+                            type: string
+                            format: uuid
+                            example: e2fc1890-0e57-11ed-bc57-d45d646bc9f2
+                      - $ref: '#/components/schemas/Appointment'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '502':
+          $ref: '#/components/responses/502'
+    get:
+      description: |-
+        Tadbirni qidirish
+         Поиск экземпляров бронирования
+      summary: Search for event instances
+      tags:
+        - Administration Module
+      parameters:
+        - name: participant
+          in: query
+          description: |-
+            Tadbir ishtirokchisining identifikatori
+             Идентификатор участника события
+             ID of the event participant
+          schema:
+            type: string
+            format: uuid
+        - name: performer
+          in: query
+          description: |-
+            tashkilot identifikatori
+             Идентификатор организации
+             ID of the organization
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    description: |-
+                      Javobdagi resurslar soni
+                       Количество ресурсов в ответе
+                       Number of resources in response
+                    type: integer
+                    minimum: 1
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        Appointment:
+                          allOf:
+                            - type: object
+                              required:
+                                - id
+                              properties:
+                                id:
+                                  description: |-
+                                    Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
+                                     Основной логический идентификатор в экосистеме здравоохранения
+                                     Main logical identifier in the healthcare ecosystem
+                                  type: string
+                                  format: uuid
+                                  example: e2fc1890-0e57-11ed-bc57-d45d646bc9f2
+                            - $ref: '#/components/schemas/Appointment'
+                    minItems: 1
+                example:
+                  count: 2
+                  data:
+                    - Appointment:
+                        id: e2fc1890-0e57-11ed-bc57-d45d646bc9f2
+                        identifier:
+                          - use: secondary
+                            type: RI
+                            system: http://some-company.uz
+                            value: '84052'
+                            period:
+                              start: '2022-05-18'
+                              end: null
+                            assigner: SomeCompany LLC
+                        status: proposed
+                        participant:
+                          - actor:
+                              reference: Practitioner/e84abf7e-13dc-11ed-a75f-d45d646bc9f2
+                          - actor:
+                              reference: Patient/1bde98b0-13dd-11ed-9c13-d45d646bc9f2
+                        performer:
+                          reference: Organization/d3880af0-13c9-11ed-907a-d45d646bc9f2
+                    - Appointment:
+                        id: 6cdb3992-13df-11ed-816f-d45d646bc9f2
+                        identifier:
+                          - use: secondary
+                            type: RI
+                            system: http://another-company.uz
+                            value: '84052'
+                            period:
+                              start: '2022-05-18'
+                              end: null
+                            assigner: AnotherCompany LLC
+                          - use: official
+                            type: RI
+                            system: http://it-med.uz
+                            value: '8920286'
+                            assigner: IT-MED LLC
+                        status: booked
+                        participant:
+                          - actor:
+                              reference: Practitioner/782fb494-13df-11ed-9da9-d45d646bc9f2
+                          - actor:
+                              reference: Patient/1bde98b0-13dd-11ed-9c13-d45d646bc9f2
+                        performer:
+                          reference: Organization/d3880af0-13c9-11ed-907a-d45d646bc9f2
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '502':
+          $ref: '#/components/responses/502'
+  /Appointment/{id}:
+    get:
+      description: |-
+        Muayyan sana/vaqt uchun bemor va amaliyotchi o'rtasida sog'liqni saqlash tadbirini bron haqida ma'lumotni olish
+         Получение сведений о бронировании медицинского мероприятия между пациентом и практикующим врачом на определенную дату / время. Это может привести к одному или нескольким встречам
+      summary: Get information about a booking of a healthcare event among patient and, practitioner for a specific date/time
+      tags:
+        - Administration Module
+      parameters:
+        - name: id
+          in: path
+          description: |-
+            Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
+             Основной логический идентификатор в экосистеме здравоохранения
+             Main logical identifier in the healthcare ecosystem
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Appointment:
+                    allOf:
+                      - type: object
+                        required:
+                          - id
+                        properties:
+                          id:
+                            description: |-
+                              Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
+                               Основной логический идентификатор в экосистеме здравоохранения
+                               Main logical identifier in the healthcare ecosystem
+                            type: string
+                            format: uuid
+                      - $ref: '#/components/schemas/Appointment'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '502':
+          $ref: '#/components/responses/502'
+    patch:
+      summary: Partial Resource Update
+      description: |-
+        Qisman Resurs Yangilash
+         Частичное обновление ресурса
+      tags:
+        - Administration Module
+      parameters:
+        - name: id
+          in: path
+          description: |-
+            Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
+             Основной логический идентификатор в экосистеме здравоохранения
+             Main logical identifier in the healthcare ecosystem
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        description: |-
+          Yaratilgan resurs haqida ma'lumot
+           Информация о создаваемом ресурсе
+           Information about the created resource
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Appointment:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      op:
+                        description: Operation name
+                        type: string
+                        enum:
+                          - add
+                          - remove
+                          - replace
+                          - move
+                          - copy
+                          - test
+                      patch:
+                        type: string
+                      value:
+                        type: string
+                      from:
+                        type: string
+                  minItems: 1
+                  uniqueItems: true
+                  example:
+                    - op: replace
+                      patch: /status
+                      value: arrived
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Appointment:
+                    allOf:
+                      - type: object
+                        required:
+                          - id
+                        properties:
+                          id:
+                            description: |-
+                              Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
+                               Основной логический идентификатор в экосистеме здравоохранения
+                               Main logical identifier in the healthcare ecosystem
+                            type: string
+                            format: uuid
+                      - $ref: '#/components/schemas/Appointment'
+                example:
+                  Appointment:
+                    id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                    identifier:
+                      - use: secondary
+                        type: RI
+                        system: http://some-company.uz
+                        value: '84052'
+                        period:
+                          start: '2022-05-18'
+                          end: null
+                        assigner: SomeCompany LLC
+                    status: arrived
+                    participant:
+                      - actor:
+                          reference: Practitioner/e84abf7e-13dc-11ed-a75f-d45d646bc9f2
+                      - actor:
+                          reference: Patient/1bde98b0-13dd-11ed-9c13-d45d646bc9f2
+                    performer:
+                      reference: Organization/d3880af0-13c9-11ed-907a-d45d646bc9f2
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '502':
+          $ref: '#/components/responses/502'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: The token must be added to the request header
+  schemas:
+    Register:
+      type: object
+      properties:
+        name:
+          type: string
+          format: string
+          example: John
+        email:
+          type: string
+          format: email
+          example: user1@gmail.com
+        password:
+          type: string
+          format: password
+          example: PassWord_12345
+      required:
+        - name
+        - email
+        - password
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: user1@gmail.com
+        password:
+          type: string
+          format: password
+          example: PassWord_12345
+      reeuired:
+        - email
+        - password
+    Appointment:
+      type: object
+      properties:
+        identifier:
+          description: |-
+            Ushbu bronni identifikatorlari
+             Идентификаторы этого бронирования
+             This appointment identifiers
+          type: array
+          items:
+            $ref: '#/components/schemas/Identifier'
+          minItems: 1
+          uniqueItems: true
+        status:
+          type: string
+          description: About code's concept see Appointment-status.json
+          enum:
+            - proposed
+            - pending
+            - booked
+            - arrived
+            - fulfilled
+            - cancelled
+            - noshow
+            - entered-in-error
+            - checked-in
+            - waitlist
+          default: booked
+        participant:
+          type: array
+          description: |-
+            Bronni ishtirokchilari
+             Участники бронирования
+             List of participants involved in the appointment
+          items:
+            type: object
+            properties:
+              actor:
+                type: object
+                description: ''
+                properties:
+                  'reference ':
+                    type: string
+                    description: |-
+                      Ishtirokchiga havola
+                       Ссылка на участника
+                       Reference to participant
+          example:
+            - actor:
+                reference: Practitioner/e84abf7e-13dc-11ed-a75f-d45d646bc9f2
+            - actor:
+                reference: Patient/1bde98b0-13dd-11ed-9c13-d45d646bc9f2
+          minItems: 2
+          uniqueItems: true
+        performer:
+          description: |-
+            Bron yaratilayotgan tashkilotga havola
+             Ссылка на организацию, в которой создается бронирование
+             Reference to the organization where the booking is being created
+          type: object
+          properties:
+            reference:
+              type: string
+          example:
+            reference: Organization/d3880af0-13c9-11ed-907a-d45d646bc9f2
+      additionalProperties: false
+      required:
+        - identifier
+        - status
+        - participant
+        - performer
+    Identifier:
+      type: object
+      properties:
+        use:
+          type: string
+          description: ''
+          enum:
+            - usual
+            - official
+            - temp
+            - secondary
+            - old (If known)
+          default: temp
+        type:
+          type: string
+          description: |-
+            Ro'yxatda (http://fhir.ssv.uz/ValueSet/identifier-type) keltirilgan turlardan biri
+             Один из перечисленных видов (http://fhir.ssv.uz/ValueSet/identifier-type)
+             One of the listed species (http://fhir.ssv.uz/ValueSet/identifier-type)
+        system:
+          description: |-
+            Identifikator qiymati uchun nom maydoni
+             Пространство имен для значения идентификатора
+             The namespace for the identifier value
+          type: string
+          format: uri
+        value:
+          description: |-
+            Noyob qiymat
+             Уникальное значение
+             The value that is unique
+          type: string
+        period:
+          description: |-
+            Identifikator foydalanish uchun yaroqli bo'lgan vaqt davri
+             Период времени, когда идентификатор действителен/был действителен для использования
+             Time period when id is/was valid for use
+          $ref: '#/components/schemas/Period'
+        assigner:
+          description: |-
+            Identifikatorni bergan tashkilot (shunchaki matn bo'lishi mumkin)
+             Организация, выдавшей идентификатор (может быть просто текст)
+             Organization that issued id (may be just text)
+          oneOf:
+            - type: object
+              properties:
+                reference:
+                  type: string
+            - type: string
+      required:
+        - type
+        - value
+        - use
+      additionalProperties: false
+      example:
+        use: secondary
+        type: RI
+        system: http://some-company.uz
+        value: '84052'
+        period:
+          start: '2022-05-18'
+          end: null
+        assigner: SomeCompany LLC
+    Period:
+      type: object
+      properties:
+        start:
+          description: |-
+            Amal qilish muddati boshlanishi (shu jumladan chegara)
+             Время начала действительности контакта (включая границу)
+             Starting time with inclusive boundary
+          type: string
+          format: date-time
+          example: '2022-02-18T10:30:00+05:00'
+        end:
+          description: |-
+            Amal qilish muddati tugashi (shu jumladan chegara)
+             Время завершения действительности контакта (включая границу)
+             End time with inclusive boundary, if not ongoing
+          type: string
+          format: date-time
+          default: null
+      additionalProperties: false
+    Patient:
+      type: object
+      description: |-
+        Bemor
+         Пациент
+         Patient
+      properties:
+        id:
+          description: |-
+            Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy bemor identifikatori
+             Основной логический идентификатор пациента в экосистеме здравоохранения
+             Patients main logical identifier in the healthcare ecosystem
+          type: string
+          format: uuid
+          example: f65e0ab6-e020-11ec-843e-6c02e0c89238
+      additionalProperties: true
+    Practitioner:
+      description: |-
+        Tibbiyot xodimi
+         Практикующий медицинский работник
+         Practitioner
+      type: object
+      properties:
+        id:
+          description: |-
+            Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy tibbiyot xodimi identifikatori
+             Основной логический идентификатор медицинского работника в экосистеме здравоохранения
+             Practitioner's main logical identifier in the healthcare ecosystem
+          type: string
+          format: uuid
+          example: b2b42f72-e253-11ec-9c4b-6c02e0c89238
+      additionalProperties: true
+    Organization:
+      description: |-
+        Tashkilot resursi
+         Ресурс Организация
+         Organization resource
+      type: object
+      properties:
+        id:
+          description: |-
+            Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy tashkilot identifikatori
+             Основной логический идентификатор организации в экосистеме здравоохранения
+             Organizations main logical identifier in the healthcare ecosystem
+          type: string
+          format: uuid
+          example: 9858ef28-e253-11ec-949f-6c02e0c89238
+      additionalProperties: true
+    Error:
+      type: object
+      description: Additional error information
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: DateTime in UTC (time-offset = 'Z'), when the error occurred (see rfc-3339 for more info about Internet date/time format)
+        id:
+          type: integer
+          description: Errors unique ID
+        status:
+          type: string
+          description: HTTP response status code. Duplicated with the response header
+        title:
+          type: string
+          description: Human-friendly summary of the problem in English
+      required:
+        - timestamp
+        - id
+        - status
+        - title
+  responses:
+    '400':
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                $ref: '#/components/schemas/Error'
+            example:
+              error:
+                timestamp: '2021-12-05T10:00:25Z'
+                id: '101'
+                status: '400'
+                title: Resource Error. Indicates the request contains invalid format/values in input.
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                $ref: '#/components/schemas/Error'
+            example:
+              error:
+                timestamp: '2021-12-05T10:00:25Z'
+                id: '5'
+                status: '401'
+                title: The resource owner or authorization server denied the request because access token is invalid.
+    '404':
+      description: Not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                $ref: '#/components/schemas/Error'
+            example:
+              error:
+                timestamp: '2022-07-04T11:00:25Z'
+                id: '102'
+                status: '404'
+                title: Resource Error. Indicates the request is pointing to a resource that does not exist.
+    '502':
+      description: Bad Gateway
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                $ref: '#/components/schemas/Error'
+            example:
+              error:
+                timestamp: '2021-12-05T10:00:25Z'
+                id: '106'
+                status: '502'
+                title: System Error. One or more services are not available.
+security:
+  - bearerAuth: []
