@@ -38,6 +38,12 @@ php artisan migrate
 ```
 <br>
 
+## Set JWT Security
+```bash
+php artisan jwt:secret
+```
+<br>
+
 ## Install npm
 ```bash
 npm install
