@@ -2,11 +2,8 @@
 
 namespace Database\Factories;
 
-use Illuminate\Support\Str;
 use App\Models\User;
 use App\Enums\AppointmentStatusEnum;
-use App\Enums\AppointmentIdentifierUseEnum;
-use App\Enums\AppointmentIdentifierTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,20 +18,12 @@ class AppointmentFactory extends Factory
      */
     public function definition()
     {
-        $users = User::pluck('id');
-        $participants = [$users->first(), $users->last()];
+        $users = User::pluck('id')->random();
         return [
-            'identifier_use'    => AppointmentIdentifierUseEnum::OFFICIAL,
-            'identifier_type'   => AppointmentIdentifierTypeEnum::DL,
-            'identifier_system' => fake()->domainName(),
-            'identifier_value'  => Str::random(5),
-            'identifier_start'  => now(),
-            'identifier_end'    => null,
-            'identifier_assigner'   => fake()->company(),
             'status' => AppointmentStatusEnum::BOOKED,
-            'participant_1' => $users->last(),
-            'participant_2' => $users->first(),
-            'performer' => $users->first(),
+            'participant_1' => $users,
+            'participant_2' => $users,
+            'performer' => $users,
         ];
     }
 }

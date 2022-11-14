@@ -85,7 +85,7 @@ paths:
           $ref: '#/components/responses/404'
         '502':
           $ref: '#/components/responses/502'
-  /auth/refresh:
+  /refresh:
     post:
       description: |-
         Foydalanuvchining tokenini yangilash
@@ -104,7 +104,7 @@ paths:
           $ref: '#/components/responses/404'
         '502':
           $ref: '#/components/responses/502'
-  /auth/logout:
+  /logout:
     post:
       description: |-
         Tizimdan chiqish
@@ -115,6 +115,44 @@ paths:
       responses:
         '201':
           description: User successfully logged out
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '502':
+          $ref: '#/components/responses/502'
+  /user:
+    get:
+      description: |-
+        Tizimdagi online foydalanuvchining ma'lumotlarini olish
+        Получить информацию о пользователе онлайн
+      summary: Get the sign in online user's informations
+      tags:
+        - Auth
+      responses:
+        '201':
+          description: User's information successfully recieved
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '502':
+          $ref: '#/components/responses/502'
+  /users:
+    get:
+      description: |-
+        Tizimdagi barcha foydalanuvchining ma'lumotlarini olish
+        Получить информацию о пользователе в системе
+      summary: Get sign in user's informations
+      tags:
+        - Auth
+      responses:
+        '201':
+          description: Users' information successfully recieved
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -174,13 +212,267 @@ paths:
           $ref: '#/components/responses/502'
     get:
       description: |-
+        Barcha tadbirlarni qidirish
+        Поиск все экземпляров бронирования
+      summary: Search for all event instances
+      tags:
+        - Administration Module
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    description: |-
+                      Javobdagi resurslar soni
+                       Количество ресурсов в ответе
+                       Number of resources in response
+                    type: integer
+                    minimum: 1
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        Appointment:
+                          allOf:
+                            - type: object
+                              required:
+                                - id
+                              properties:
+                                id:
+                                  description: |-
+                                    Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
+                                     Основной логический идентификатор в экосистеме здравоохранения
+                                     Main logical identifier in the healthcare ecosystem
+                                  type: string
+                                  format: uuid
+                                  example: e2fc1890-0e57-11ed-bc57-d45d646bc9f2
+                            - $ref: '#/components/schemas/Appointment'
+                    minItems: 1
+                example:
+                  count: 2
+                  data:
+                    - Appointment:
+                        id: e2fc1890-0e57-11ed-bc57-d45d646bc9f2
+                        identifier:
+                          - use: secondary
+                            type: RI
+                            system: http://some-company.uz
+                            value: '84052'
+                            period:
+                              start: '2022-05-18'
+                              end: null
+                            assigner: SomeCompany LLC
+                        status: proposed
+                        participant:
+                          - actor:
+                              reference: Practitioner/e84abf7e-13dc-11ed-a75f-d45d646bc9f2
+                          - actor:
+                              reference: Patient/1bde98b0-13dd-11ed-9c13-d45d646bc9f2
+                        performer:
+                          reference: Organization/d3880af0-13c9-11ed-907a-d45d646bc9f2
+                    - Appointment:
+                        id: 6cdb3992-13df-11ed-816f-d45d646bc9f2
+                        identifier:
+                          - use: secondary
+                            type: RI
+                            system: http://another-company.uz
+                            value: '84052'
+                            period:
+                              start: '2022-05-18'
+                              end: null
+                            assigner: AnotherCompany LLC
+                          - use: official
+                            type: RI
+                            system: http://it-med.uz
+                            value: '8920286'
+                            assigner: IT-MED LLC
+                        status: booked
+                        participant:
+                          - actor:
+                              reference: Practitioner/782fb494-13df-11ed-9da9-d45d646bc9f2
+                          - actor:
+                              reference: Patient/1bde98b0-13dd-11ed-9c13-d45d646bc9f2
+                        performer:
+                          reference: Organization/d3880af0-13c9-11ed-907a-d45d646bc9f2
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '502':
+          $ref: '#/components/responses/502'
+  /appointment/{id}:
+    get:
+      description: |-
+        Muayyan sana/vaqt uchun bemor va amaliyotchi o'rtasida sog'liqni saqlash tadbirini bron haqida ma'lumotni olish
+         Получение сведений о бронировании медицинского мероприятия между пациентом и практикующим врачом на определенную дату / время. Это может привести к одному или нескольким встречам
+      summary: Get information about a booking of a healthcare event among patient and, practitioner for a specific date/time
+      tags:
+        - Administration Module
+      parameters:
+        - name: id
+          in: path
+          description: |-
+            Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
+             Основной логический идентификатор в экосистеме здравоохранения
+             Main logical identifier in the healthcare ecosystem
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Appointment:
+                    allOf:
+                      - type: object
+                        required:
+                          - id
+                        properties:
+                          id:
+                            description: |-
+                              Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
+                               Основной логический идентификатор в экосистеме здравоохранения
+                               Main logical identifier in the healthcare ecosystem
+                            type: string
+                            format: uuid
+                      - $ref: '#/components/schemas/Appointment'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '502':
+          $ref: '#/components/responses/502'
+    patch:
+      summary: Partial Resource Update
+      description: |-
+        Qisman Resurs Yangilash
+         Частичное обновление ресурса
+      tags:
+        - Administration Module
+      parameters:
+        - name: id
+          in: path
+          description: |-
+            Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
+             Основной логический идентификатор в экосистеме здравоохранения
+             Main logical identifier in the healthcare ecosystem
+          schema:
+            type: string
+            format: uuid
+          required: true
+      requestBody:
+        description: |-
+          Yaratilgan resurs haqida ma'lumot
+           Информация о создаваемом ресурсе
+           Information about the created resource
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                op:
+                  description: Operation name
+                  type: string
+                  enum:
+                    - add
+                    - remove
+                    - replace
+                    - move
+                    - copy
+                    - test
+                  example: replace
+                status:
+                  type: string
+                  example: /status
+                value:
+                  type: string
+                  example: arrived
+              minItems: 1
+              uniqueItems: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Appointment:
+                    allOf:
+                      - type: object
+                        required:
+                          - id
+                        properties:
+                          id:
+                            description: |-
+                              Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
+                               Основной логический идентификатор в экосистеме здравоохранения
+                               Main logical identifier in the healthcare ecosystem
+                            type: string
+                            format: uuid
+                      - $ref: '#/components/schemas/Appointment'
+                example:
+                  Appointment:
+                    id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+                    identifier:
+                      - use: secondary
+                        type: RI
+                        system: http://some-company.uz
+                        value: '84052'
+                        period:
+                          start: '2022-05-18'
+                          end: null
+                        assigner: SomeCompany LLC
+                    status: arrived
+                    participant:
+                      - actor:
+                          reference: Practitioner/e84abf7e-13dc-11ed-a75f-d45d646bc9f2
+                      - actor:
+                          reference: Patient/1bde98b0-13dd-11ed-9c13-d45d646bc9f2
+                    performer:
+                      reference: Organization/d3880af0-13c9-11ed-907a-d45d646bc9f2
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '404':
+          $ref: '#/components/responses/404'
+        '502':
+          $ref: '#/components/responses/502'
+  /appointment/byPO:
+    get:
+      description: |-
         Tadbirni qidirish
          Поиск экземпляров бронирования
       summary: Search for event instances
       tags:
         - Administration Module
       parameters:
-        - name: participant
+        - name: participant_1
+          in: query
+          description: |-
+            Tadbir ishtirokchisining identifikatori
+             Идентификатор участника события
+             ID of the event participant
+          schema:
+            type: string
+            format: uuid
+        - name: participant_2
           in: query
           description: |-
             Tadbir ishtirokchisining identifikatori
@@ -288,161 +580,6 @@ paths:
           $ref: '#/components/responses/404'
         '502':
           $ref: '#/components/responses/502'
-  /Appointment/{id}:
-    get:
-      description: |-
-        Muayyan sana/vaqt uchun bemor va amaliyotchi o'rtasida sog'liqni saqlash tadbirini bron haqida ma'lumotni olish
-         Получение сведений о бронировании медицинского мероприятия между пациентом и практикующим врачом на определенную дату / время. Это может привести к одному или нескольким встречам
-      summary: Get information about a booking of a healthcare event among patient and, practitioner for a specific date/time
-      tags:
-        - Administration Module
-      parameters:
-        - name: id
-          in: path
-          description: |-
-            Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
-             Основной логический идентификатор в экосистеме здравоохранения
-             Main logical identifier in the healthcare ecosystem
-          schema:
-            type: string
-            format: uuid
-          required: true
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  Appointment:
-                    allOf:
-                      - type: object
-                        required:
-                          - id
-                        properties:
-                          id:
-                            description: |-
-                              Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
-                               Основной логический идентификатор в экосистеме здравоохранения
-                               Main logical identifier in the healthcare ecosystem
-                            type: string
-                            format: uuid
-                      - $ref: '#/components/schemas/Appointment'
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '404':
-          $ref: '#/components/responses/404'
-        '502':
-          $ref: '#/components/responses/502'
-    patch:
-      summary: Partial Resource Update
-      description: |-
-        Qisman Resurs Yangilash
-         Частичное обновление ресурса
-      tags:
-        - Administration Module
-      parameters:
-        - name: id
-          in: path
-          description: |-
-            Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
-             Основной логический идентификатор в экосистеме здравоохранения
-             Main logical identifier in the healthcare ecosystem
-          schema:
-            type: string
-            format: uuid
-          required: true
-      requestBody:
-        description: |-
-          Yaratilgan resurs haqida ma'lumot
-           Информация о создаваемом ресурсе
-           Information about the created resource
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                Appointment:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      op:
-                        description: Operation name
-                        type: string
-                        enum:
-                          - add
-                          - remove
-                          - replace
-                          - move
-                          - copy
-                          - test
-                      patch:
-                        type: string
-                      value:
-                        type: string
-                      from:
-                        type: string
-                  minItems: 1
-                  uniqueItems: true
-                  example:
-                    - op: replace
-                      patch: /status
-                      value: arrived
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  Appointment:
-                    allOf:
-                      - type: object
-                        required:
-                          - id
-                        properties:
-                          id:
-                            description: |-
-                              Sog'liqni saqlash ekotizimidagi birlamchi mantiqiy identifikatori
-                               Основной логический идентификатор в экосистеме здравоохранения
-                               Main logical identifier in the healthcare ecosystem
-                            type: string
-                            format: uuid
-                      - $ref: '#/components/schemas/Appointment'
-                example:
-                  Appointment:
-                    id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
-                    identifier:
-                      - use: secondary
-                        type: RI
-                        system: http://some-company.uz
-                        value: '84052'
-                        period:
-                          start: '2022-05-18'
-                          end: null
-                        assigner: SomeCompany LLC
-                    status: arrived
-                    participant:
-                      - actor:
-                          reference: Practitioner/e84abf7e-13dc-11ed-a75f-d45d646bc9f2
-                      - actor:
-                          reference: Patient/1bde98b0-13dd-11ed-9c13-d45d646bc9f2
-                    performer:
-                      reference: Organization/d3880af0-13c9-11ed-907a-d45d646bc9f2
-        '400':
-          $ref: '#/components/responses/400'
-        '401':
-          $ref: '#/components/responses/401'
-        '404':
-          $ref: '#/components/responses/404'
-        '502':
-          $ref: '#/components/responses/502'
 components:
   securitySchemes:
     bearerAuth:
@@ -497,6 +634,7 @@ components:
             $ref: '#/components/schemas/Identifier'
           minItems: 1
           uniqueItems: true
+          hidden: true
         status:
           type: string
           description: About code's concept see Appointment-status.json
@@ -538,6 +676,7 @@ components:
                 reference: Patient/1bde98b0-13dd-11ed-9c13-d45d646bc9f2
           minItems: 2
           uniqueItems: true
+          hidden: true
         performer:
           description: |-
             Bron yaratilayotgan tashkilotga havola
@@ -549,12 +688,10 @@ components:
               type: string
           example:
             reference: Organization/d3880af0-13c9-11ed-907a-d45d646bc9f2
+          hidden: true
       additionalProperties: false
       required:
-        - identifier
         - status
-        - participant
-        - performer
     Identifier:
       type: object
       properties:

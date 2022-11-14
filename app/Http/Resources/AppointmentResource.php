@@ -17,15 +17,15 @@ class AppointmentResource extends JsonResource
         return [
             'id' => $this->id,
             "identifier" => [
-                "use"       => $this->identifier_use,
-                "type"      => $this->identifier_type,
-                "system"    => $this->identifier_system,
-                "value"     => $this->identifier_value,
-                "period"    => [
-                    "start" => $this->identifier_start,
-                    "end"   => $this->identifier_end,
+                "use" => "secondary",
+                "type" => "RI",
+                "system" => "http://some-company.uz",
+                "value" => "84052",
+                "period" => [
+                    "start" => "2022-05-18",
+                    "end" => null
                 ],
-                "assigner"  => $this->identifier_assigner,
+                "assigner" => "SomeCompany LLC",
             ],
             'status' => $this->status,
             'participant' => [

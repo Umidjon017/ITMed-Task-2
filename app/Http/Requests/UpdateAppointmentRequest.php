@@ -24,17 +24,7 @@ class UpdateAppointmentRequest extends FormRequest
     public function rules()
     {
         return [
-            'identifier_use'        =>  'nullable|string',
-            'identifier_type'       =>  'nullable|string',
-            'identifier_system'     =>  'nullable|string',
-            'identifier_value'      =>  'nullable|string',
-            'identifier_start'      =>  'nullable|string',
-            'identifier_end'        =>  'nullable|string',
-            'identifier_assigner'   =>  'nullable|string',
-            'status'                =>  'required|string',
-            'participant_1'         =>  'nullable|string',
-            'participant_2'         =>  'nullable|string',
-            'performer'             =>  'nullable|uuid',
+            'status'        =>  'required|string',
         ];
     }
 }

@@ -24,17 +24,7 @@ class StoreAppointmentRequest extends FormRequest
     public function rules()
     {
         return [
-            'identifier_use'        =>  'required|string',
-            'identifier_type'       =>  'required|string',
-            'identifier_system'     =>  'required|string',
-            'identifier_value'      =>  'required|string',
-            'identifier_start'      =>  'required|string',
-            'identifier_end'        =>  'nullable|string',
-            'identifier_assigner'   =>  'required|string',
-            'status'                =>  'nullable|string',
-            'participant_1'         =>  'nullable|string',
-            'participant_2'         =>  'nullable|string',
-            'performer'             =>  'nullable|uuid',
+            'status'        =>  'required|string',
         ];
     }
 }

@@ -9,6 +9,7 @@ use App\Http\Controllers\BaseController;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Resources\AppointmentResource;
 use App\Http\Requests\UpdateAppointmentRequest;
+use Illuminate\Http\Request;
 
 class AppointmentController extends BaseController
 {
@@ -38,10 +39,10 @@ class AppointmentController extends BaseController
     public function store(StoreAppointmentRequest $request)
     {
         $data = $request->all();
-        $data['status'] = $request->status ? $request->status : AppointmentStatusEnum::BOOKED;
-        $data['participant_1'] = $request->participant_1 ? $request->participant_1 : User::pluck('id')->random();
-        $data['participant_2'] = $request->participant_2 ? $request->participant_2 : User::pluck('id')->random();
-        $data['performer'] = $request->performer ? $request->performer : User::pluck('id')->random();
+        $data['status'] = AppointmentStatusEnum::BOOKED;
+        $data['participant_1'] = User::pluck('id')->random();
+        $data['participant_2'] = User::pluck('id')->random();
+        $data['performer'] = User::pluck('id')->random();
         $appointment = Appointment::create($data);
         return $this->sendResponse(new AppointmentResource($appointment), 'Appointment created successfully.');
     }
@@ -70,11 +71,14 @@ class AppointmentController extends BaseController
      * @param  \App\Models\Appointment  $appointment
      * @return \Illuminate\Http\Response
      */
-    public function showByPartsOrOrg($id)
+    public function showByPartsOrOrg(Request $request)
     {
-        $filter = Appointment::where('participant_1', $id)
-                    ->orWhere('participant_2', $id)
-                    ->orWhere('performer', $id)
+        $participant_1 = $request->participant_1;
+        $participant_2 = $request->participant_2;
+        $performer = $request->performer;
+        $filter = Appointment::where('participant_1', $participant_1)
+                    ->orWhere('participant_2', $participant_2)
+                    ->orWhere('performer', $performer)
                     ->get();
         $appointment = AppointmentResource::collection($filter);
         $response = [
