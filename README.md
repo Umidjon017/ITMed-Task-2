@@ -36,6 +36,17 @@ Or just install the [composer](https://getcomposer.org/) program once and it wil
 ```bash
 php artisan migrate
 ```
+<br>
+
+## Install npm
+```bash
+npm install
+npm run dev
+```
+## Serve the project
+```bash
+php artisan serve
+```
 
 ## Links for api-documentation
 
